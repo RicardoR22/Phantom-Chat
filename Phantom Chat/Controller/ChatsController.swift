@@ -31,6 +31,7 @@ class ChatsController: UIViewController {
 			logout()
 		}
 		
+		
 	}
 	
 	// MARK: View setup
@@ -88,25 +89,32 @@ class ChatsController: UIViewController {
 					return
 				}
 				let value = snapshot.value as! [String : AnyObject]
-				//Goes through the values inside the queue of users!
+				//Goes through the values inside the queue of users
 				for(_, newvalue) in value {
 					let currValue = newvalue as! [String : String]
 					let currID = currValue["id"]!
-					//if the id is not our own, connect into a chat room!
+					//if the id is not our own, connect to user
 					if(currID != self.id) {
 						print("Connecting to user: \(currID)")
-						//Sets the default values to reflect users have chat room now
 						//Creates a chatRoom with the id's of both user's added together
 						var chatRoomID = self.id!
 						chatRoomID += currID
 						let chatRoom = Database.database().reference().child("Chats").child(self.id!)
 						chatRoom.setValue(["partner": currID])
-//						self.goToChat()
+						self.startConversation(partnerID: currID)
 						return
 					}
 				}
+				self.exitQueue()
+
 			})
 		}
+	}
+	
+	func startConversation(partnerID: String) {
+		let conversationVC = ConversationViewController()
+		conversationVC.partnerID = partnerID
+		navigationController?.pushViewController(conversationVC, animated: true)
 	}
 	
 	func checkIfInChat()->Bool {
