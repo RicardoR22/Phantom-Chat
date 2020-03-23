@@ -22,6 +22,10 @@ class LoginController: UIViewController {
 		// Do any additional setup after loading the view, typically from a nib.
 	}
 	
+	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		loginView.endEditing(true)
+	}
+	
 	// MARK: View setup
 	
 	func setup() {
