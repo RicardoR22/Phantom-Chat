@@ -34,6 +34,10 @@ class ChatsController: UIViewController {
 		
 	}
 	
+	override func viewDidAppear(_ animated: Bool) {
+		resetView()
+	}
+	
 	// MARK: View setup
 	
 	func setup() {
@@ -57,7 +61,7 @@ class ChatsController: UIViewController {
 	func searchTimer(){
 		timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true, block: {_ in
 			self.timeInQueue += 2
-			if (self.timeInQueue <= 10) {
+			if (self.timeInQueue <= 30) {
 				if(!self.checkIfInChat()) {
 					self.searchForPhantom()
 				}
@@ -99,41 +103,44 @@ class ChatsController: UIViewController {
 						//Creates a chatRoom with the id's of both user's added together
 						var chatRoomID = self.id!
 						chatRoomID += currID
-						let chatRoom = Database.database().reference().child("Chats").child(self.id!)
-						chatRoom.setValue(["partner": currID])
+						let chatRoom = Database.database().reference().child("Chats").child(currID)
+						chatRoom.setValue(["partner": self.id!])
 						self.startConversation(partnerID: currID)
 						return
 					}
 				}
-				self.exitQueue()
-
 			})
+			
+
 		}
 	}
 	
 	func startConversation(partnerID: String) {
-		let conversationVC = ConversationViewController()
+		let conversationVC = ConversationViewController(collectionViewLayout: UICollectionViewFlowLayout())
 		conversationVC.partnerID = partnerID
 		navigationController?.pushViewController(conversationVC, animated: true)
+		self.exitQueue()
 	}
 	
 	func checkIfInChat()->Bool {
 		//Checks the DB value inChat if true go to chat room!
 		var found = false
-		let ref = Database.database().reference().child("Queue").child(id!)
+		let ref = Database.database().reference().child("Chats").child(id!)
 		DispatchQueue.main.async {
 			ref.observeSingleEvent(of: .value, with: { snapshot in
 				
 				if !snapshot.exists() {
-					return }
+					return
+				}
 				let value = snapshot.value as! [String : AnyObject]
 				let theValue = value as! [String : String]
-				let foundString = theValue["inChat"]!
-				if(foundString == "true")
-				{
+				let partner = theValue["partner"]
+				if (partner != nil) {
 					found = true
 					self.timer.invalidate()
-					//					self.goToChat()
+					let chatRoom = Database.database().reference().child("Chats").child(partner!)
+					chatRoom.setValue(["partner": self.id!])
+					self.startConversation(partnerID: partner!)
 				}
 			})
 		}

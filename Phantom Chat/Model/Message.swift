@@ -1,19 +1,17 @@
 //
-//  ConversationViewConstraints.swift
+//  Message.swift
 //  Phantom Chat
 //
 //  Created by Ricardo Rodriguez on 3/23/20.
 //  Copyright © 2020 Ricardo Rodriguez. All rights reserved.
 //
 
-import UIKit
+import Foundation
 
-extension ConversationView {
-    
-    func setViewConstraints() {
-        
+class Message {
 	
-	}
-    
+	var fromID: String?
+	var toID: String?
+	var text: String?
+	
 }
-
